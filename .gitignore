@@ -1,0 +1,7 @@
+/vendor/
+/storage/memoires/*
+!/storage/memoires/.gitkeep
+/logs/*
+!/logs/.gitkeep
+.env
+composer.lock
