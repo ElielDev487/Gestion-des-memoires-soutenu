@@ -7,30 +7,30 @@ $initial = strtoupper(substr($email, 0, 1));
 
 $menus = [
     'admin' => [
-        ['url' => '/admin/dashboard',    'label' => 'Dashboard',              'icon' => 'fa-solid fa-gauge'],
-        ['url' => '/admin/utilisateurs', 'label' => 'Utilisateurs',           'icon' => 'fa-solid fa-users'],
+        ['url' => '/admin/dashboard',    'label' => 'Dashboard',    'icon' => 'fa-solid fa-gauge'],
+        ['url' => '/admin/utilisateurs', 'label' => 'Utilisateurs', 'icon' => 'fa-solid fa-users'],
     ],
     'de' => [
-        ['url' => '/de/dashboard',    'label' => 'Dashboard',                 'icon' => 'fa-solid fa-gauge'],
-        ['url' => '/de/etudiants',    'label' => 'Étudiants',                 'icon' => 'fa-solid fa-user-graduate'],
-        ['url' => '/de/professeurs',  'label' => 'Professeurs',               'icon' => 'fa-solid fa-chalkboard-user'],
-        ['url' => '/de/memoires',     'label' => 'Mémoires',                  'icon' => 'fa-solid fa-book'],
-        ['url' => '/de/referentiel',  'label' => 'Filières / Niveaux / Centres', 'icon' => 'fa-solid fa-building-columns'],
+        ['url' => '/de/dashboard',    'label' => 'Dashboard',                  'icon' => 'fa-solid fa-gauge'],
+        ['url' => '/de/etudiants',    'label' => 'Étudiants',                  'icon' => 'fa-solid fa-user-graduate'],
+        ['url' => '/de/professeurs',  'label' => 'Professeurs',                'icon' => 'fa-solid fa-chalkboard-user'],
+        ['url' => '/de/memoires',     'label' => 'Mémoires',                   'icon' => 'fa-solid fa-book'],
+        ['url' => '/de/referentiel',  'label' => 'Filières / Niveaux / Centres','icon' => 'fa-solid fa-building-columns'],
     ],
     'professeur' => [
-        ['url' => '/professeur/dashboard', 'label' => 'Dashboard',            'icon' => 'fa-solid fa-gauge'],
-        ['url' => '/professeur/memoires',  'label' => 'Mes mémoires',         'icon' => 'fa-solid fa-inbox'],
+        ['url' => '/professeur/dashboard', 'label' => 'Dashboard',   'icon' => 'fa-solid fa-gauge'],
+        ['url' => '/professeur/memoires',  'label' => 'Mes mémoires','icon' => 'fa-solid fa-inbox'],
     ],
     'etudiant' => [
-        ['url' => '/etudiant/dashboard',   'label' => 'Accueil',              'icon' => 'fa-solid fa-house'],
-        ['url' => '/catalogue',            'label' => 'Catalogue',            'icon' => 'fa-solid fa-books'],
-        ['url' => '/etudiant/soumettre',   'label' => 'Soumettre',            'icon' => 'fa-solid fa-upload'],
-        ['url' => '/etudiant/mon-memoire', 'label' => 'Mon mémoire',          'icon' => 'fa-solid fa-folder'],
+        ['url' => '/etudiant/dashboard',   'label' => 'Accueil',    'icon' => 'fa-solid fa-house'],
+        ['url' => '/catalogue',            'label' => 'Catalogue',  'icon' => 'fa-solid fa-book-open'],
+        ['url' => '/etudiant/soumettre',   'label' => 'Soumettre',  'icon' => 'fa-solid fa-upload'],
+        ['url' => '/etudiant/mon-memoire', 'label' => 'Mon mémoire','icon' => 'fa-solid fa-folder'],
     ],
 ];
 
 $currentMenu = $menus[$role] ?? [];
-$currentUrl  = '/' . trim(str_replace(BASE_URL, '', $_SERVER['REQUEST_URI']), '/');
+$currentUrl  = '/' . trim(str_replace(BASE_URL, '', strtok($_SERVER['REQUEST_URI'], '?')), '/');
 ?>
 
 <aside class="sidebar" id="sidebar">
@@ -51,18 +51,19 @@ $currentUrl  = '/' . trim(str_replace(BASE_URL, '', $_SERVER['REQUEST_URI']), '/
                 <?= $item['label'] ?>
             </a>
         <?php endforeach; ?>
+    </nav>
 
+    <div class="sidebar-bottom">
         <a href="<?= BASE_URL ?>/logout" class="nav-logout">
             <i class="fa-solid fa-right-from-bracket"></i>
             Déconnexion
         </a>
-    </nav>
-
-    <div class="sidebar-user">
-        <div class="user-avatar"><?= $initial ?></div>
-        <div class="user-info">
-            <div class="user-name"><?= htmlspecialchars($email) ?></div>
-            <div class="user-role"><?= $role ?></div>
+        <div class="sidebar-user">
+            <div class="user-avatar"><?= $initial ?></div>
+            <div class="user-info">
+                <div class="user-name"><?= htmlspecialchars($email) ?></div>
+                <div class="user-role"><?= $role ?></div>
+            </div>
         </div>
     </div>
 

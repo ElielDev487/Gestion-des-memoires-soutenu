@@ -153,6 +153,32 @@ a {
     color: #ef4444 !important;
 }
 
+/* Bas de la sidebar */
+.sidebar-bottom {
+    border-top: 1px solid #1F2937;
+}
+
+.nav-logout {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 16px;
+    color: #ef4444;
+    font-size: 13px;
+    transition: background 0.2s;
+    border-bottom: 1px solid #1F2937;
+}
+
+.nav-logout:hover {
+    background: #1F2937;
+}
+
+.nav-logout i {
+    width: 18px;
+    text-align: center;
+    font-size: 14px;
+}
+
 .sidebar-user {
     padding: 12px 14px;
     background: #0A1628;
@@ -398,6 +424,7 @@ tbody td {
 .badge-orange { background: var(--orange-bg); color: var(--orange); }
 .badge-blue   { background: var(--blue-bg);   color: var(--blue); }
 .badge-gray   { background: var(--gray-lt);   color: var(--gray); }
+.badge-navy   { background: #EEF2FF; color: var(--navy); }
 
 /* ================================================
    BOUTONS
@@ -820,6 +847,42 @@ tbody td {
 
     .page-content {
         padding: 16px;
+    }
+}
+
+/* Tableau responsive mobile */
+@media (max-width: 768px) {
+    table thead {
+        display: none;
+    }
+
+    table tbody tr {
+        display: block;
+        margin-bottom: 12px;
+        border: 1px solid var(--gray-lt);
+        border-radius: var(--radius);
+        padding: 10px;
+    }
+
+    table tbody td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 6px 8px;
+        border-bottom: 1px solid var(--gray-lt);
+        font-size: 12px;
+    }
+
+    table tbody td:last-child {
+        border-bottom: none;
+    }
+
+    table tbody td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: var(--gray);
+        font-size: 11px;
+        margin-right: 8px;
     }
 }
 
