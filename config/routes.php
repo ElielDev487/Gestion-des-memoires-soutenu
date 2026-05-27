@@ -1,4 +1,6 @@
 <?php
+// File : config/routes.php
+
 // Auth
 $router->add('GET',  'login',                       'AuthController',        'showLogin');
 $router->add('POST', 'login',                       'AuthController',        'login');

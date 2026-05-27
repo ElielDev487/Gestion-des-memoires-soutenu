@@ -1,4 +1,6 @@
 <?php
+// File : core/Auth.php
+
 class Auth {
     public static function isLoggedIn(): bool {
         return isset($_SESSION['id_utilisateur']);

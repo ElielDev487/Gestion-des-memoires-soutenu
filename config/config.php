@@ -1,4 +1,6 @@
 <?php
+// File : config.php
+
 // Base de donnees
 define('DB_HOST',    'localhost');
 define('DB_NAME',    'memoires_db');

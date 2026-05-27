@@ -1,4 +1,6 @@
 <?php
+// File : core/Database.php
+
 class Database {
     private static ?Database $instance = null;
     private PDO $db;
