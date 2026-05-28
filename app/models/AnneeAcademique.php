@@ -1,82 +1,107 @@
 <?php
-
+// File : app/models/AnneeAcademique.php
+// Gestion des années académiques en base de données
+// CRUD complet : getAll, getById, create, update, delete
 class AnneeAcademique {
-    private $conn;
-    private $table = 'annees_academiques';
-
-    public $id;
-    public $libelle;
-    
-
-    public function __construct($db) {
-        $this->conn = $db;
+    private PDO $db;
+    public function __construct() {
+        $this->db = Database::getInstance()->getConnection();
     }
-
-    public function getAll() {
-        return $this->conn->query(
-            "SELECT * FROM {$this->table} ORDER BY date_debut DESC"
+    /**
+     * Retourne toutes les années académiques triées par libellé décroissant
+     * Utilisé dans : selects des formulaires, liste référentiel
+     */
+    public function getAll(): array {
+        $stmt = $this->db->query(
+            'SELECT id_annee_academique, libelle
+             FROM annee_academique
+             ORDER BY libelle DESC'
         );
+        return $stmt->fetchAll();
     }
-
-    public function getById($id) {
-        $id = intval($id);
-        $r  = $this->conn->query("SELECT * FROM {$this->table} WHERE id=$id LIMIT 1");
-        return $r ? $r->fetch_assoc() : null;
-    }
-
-    public function getActive() {
-        $r = $this->conn->query("SELECT * FROM {$this->table} WHERE est_active=1 LIMIT 1");
-        return $r ? $r->fetch_assoc() : null;
-    }
-
-    public function getMemoires($annee_id) {
-        $annee_id = intval($annee_id);
-        return $this->conn->query(
-            "SELECT * FROM memoires WHERE annee_academique_id=$annee_id ORDER BY date_soumission DESC"
+    /**
+     * Retourne une année académique par son id
+     * Utilisé dans : vérification avant update/delete
+     */
+    public function getById(int $id): ?array {
+        $stmt = $this->db->prepare(
+            'SELECT id_annee_academique, libelle
+             FROM annee_academique
+             WHERE id_annee_annee_academique = ?'
         );
+        $stmt->execute([$id]);
+        $result = $stmt->fetch();
+        return $result ?: null;
     }
-
-    public function create() {
-        $libelle    = $this->conn->real_escape_string($this->libelle);
-        
-        if ($est_active) {
-            $this->conn->query("UPDATE {$this->table} SET est_active=0");
-        }
-        $sql = "INSERT INTO {$this->table} (libelle)
-                VALUES ('$libelle')";
-        if ($this->conn->query($sql)) {
-            $this->id = $this->conn->insert_id;
-            return true;
-        }
-        return false;
-    }
-
-    public function update() {
-        $id         = intval($this->id);
-        $libelle    = $this->conn->real_escape_string($this->libelle);
-        if ($est_active) {
-            $this->conn->query("UPDATE {$this->table} SET est_active=0 WHERE id!=$id");
-        }
-        return $this->conn->query(
-            "UPDATE {$this->table}
-             SET libelle='$libelle',
-              
-             WHERE id=$id"
+    /**
+     * Crée une nouvelle année académique
+     * Retourne l'id inséré ou false si échec
+     */
+    public function create(string $libelle): int|false {
+        $stmt = $this->db->prepare(
+            'INSERT INTO annee_academique (libelle)
+             VALUES (?)'
         );
+        $stmt->execute([trim($libelle)]);
+        return (int) $this->db->lastInsertId();
     }
-
-    public function activer($id) {
-        $id = intval($id);
-        $this->conn->query("UPDATE {$this->table} SET est_active=0");
-        return $this->conn->query("UPDATE {$this->table} SET est_active=1 WHERE id=$id");
+    /**
+     * Met à jour le libellé d'une année académique
+     * Retourne true si succès, false si échec
+     */
+    public function update(int $id, string $libelle): bool {
+        $stmt = $this->db->prepare(
+            'UPDATE annee_academique
+             SET libelle = ?
+             WHERE id_annee_annee_academique = ?'
+        );
+        return $stmt->execute([trim($libelle), $id]);
     }
-
-    public function delete($id) {
-        $id  = intval($id);
-        $row = $this->getById($id);
-        if ($row && $row['est_active']) return false;
-        $check = $this->conn->query("SELECT id FROM memoires WHERE annee_academique_id=$id LIMIT 1");
-        if ($check && $check->num_rows > 0) return false;
-        return $this->conn->query("DELETE FROM {$this->table} WHERE id=$id");
+    /**
+     * Supprime une année académique par son id
+     *  Vérifier avant qu'aucune inscription ou mémoire n'y est lié
+     * Retourne true si succès, false si échec
+     */
+    public function delete(int $id): bool {
+        $stmt = $this->db->prepare(
+            'DELETE FROM annee_academique
+             WHERE id_annee_annee_academique = ?'
+        );
+        return $stmt->execute([$id]);
+    }
+    /**
+     * Vérifie si une année académique avec ce libellé existe déjà
+     * Utilisé avant create pour éviter les doublons
+     */
+    public function existsByLibelle(string $libelle): bool {
+        $stmt = $this->db->prepare(
+            'SELECT COUNT(*) as total
+             FROM annee_academique
+             WHERE libelle = ?'
+        );
+        $stmt->execute([trim($libelle)]);
+        return $stmt->fetch()['total'] > 0;
+    }
+    /**
+     * Vérifie si une année académique est utilisée dans une inscription ou un mémoire
+     * Utilisé avant delete pour éviter les erreurs de contrainte FK
+     */
+    public function isUsed(int $id): bool {
+        // Vérification dans les inscriptions
+        $stmt = $this->db->prepare(
+            'SELECT COUNT(*) as total
+             FROM inscription
+             WHERE id_annee_archive = ?'
+        );
+        $stmt->execute([$id]);
+        if ($stmt->fetch()['total'] > 0) return true;
+        // Vérification dans les mémoires archivés
+        $stmt = $this->db->prepare(
+            'SELECT COUNT(*) as total
+             FROM memoire
+             WHERE id_annee_academique = ?'
+        );
+        $stmt->execute([$id]);
+        return $stmt->fetch()['total'] > 0;
     }
 }

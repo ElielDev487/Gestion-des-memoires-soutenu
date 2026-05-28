@@ -1,78 +1,127 @@
 <?php
+// File : app/models/Niveau.php
+// Gestion des niveaux en base de données
+// CRUD complet : getAll, getById, create, update, delete
 
 class Niveau {
-    private $conn;
-    private $table = 'niveaux';
 
-    public $id;
-    public $libelle;
-   
+    private PDO $db;
 
-    public function __construct($db) {
-        $this->conn = $db;
+    public function __construct() {
+        $this->db = Database::getInstance()->getConnection();
     }
 
-    public function getAll() {
-        return $this->conn->query("SELECT * FROM {$this->table} ORDER BY libelle ASC");
-    }
-
-    public function getById($id) {
-        $id = intval($id);
-        $r  = $this->conn->query("SELECT * FROM {$this->table} WHERE id=$id LIMIT 1");
-        return $r ? $r->fetch_assoc() : null;
-    }
-
-    public function getFiliere($niveau_id) {
-        $niveau_id = intval($niveau_id);
-        $sql = "SELECT f.* FROM filieres f
-                INNER JOIN filiere_niveau fn ON fn.filiere_id=f.id
-                WHERE fn.niveau_id=$niveau_id ORDER BY f.libelle ASC";
-        return $this->conn->query($sql);
-    }
-
-    public function create() {
-        $libelle = $this->conn->real_escape_string($this->libelle);
-        $sql = "INSERT INTO {$this->table} (libelle)
-                VALUES ('$libelle')";
-        if ($this->conn->query($sql)) {
-            $this->id = $this->conn->insert_id;
-            return true;
-        }
-        return false;
-    }
-
-    public function update() {
-        $id      = intval($this->id);
-        $libelle = $this->conn->real_escape_string($this->libelle);
-        $ordre   = intval($this->ordre);
-        return $this->conn->query(
-            "UPDATE {$this->table} SET libelle='$libelle' WHERE id=$id"
+    /**
+     * Retourne tous les niveaux triés par libellé
+     * Utilisé dans : selects des formulaires, liste référentiel
+     */
+    public function getAll(): array {
+        $stmt = $this->db->query(
+            'SELECT id_niveau, libelle
+             FROM niveau
+             ORDER BY libelle ASC'
         );
+        return $stmt->fetchAll();
     }
 
-    public function delete($id) {
-        $id = intval($id);
-        $this->conn->query("DELETE FROM filiere_niveau WHERE niveau_id=$id");
-        return $this->conn->query("DELETE FROM {$this->table} WHERE id=$id");
+    /**
+     * Retourne un niveau par son id
+     * Utilisé dans : vérification avant update/delete
+     */
+    public function getById(int $id): ?array {
+        $stmt = $this->db->prepare(
+            'SELECT id_niveau, libelle
+             FROM niveau
+             WHERE id_niveau = ?'
+        );
+        $stmt->execute([$id]);
+        $result = $stmt->fetch();
+        return $result ?: null;
     }
 
-    public function lierFiliere($niveau_id, $filiere_id) {
-        $n = intval($niveau_id);
-        $f = intval($filiere_id);
-        $check = $this->conn->query(
-            "SELECT id FROM filiere_niveau WHERE niveau_id=$n AND filiere_id=$f"
+    /**
+     * Crée un nouveau niveau
+     * Retourne l'id inséré
+     */
+    public function create(string $libelle): int {
+        $stmt = $this->db->prepare(
+            'INSERT INTO niveau (libelle)
+             VALUES (?)'
         );
-        if ($check && $check->num_rows > 0) return true;
-        return $this->conn->query(
-            "INSERT INTO filiere_niveau (filiere_id, niveau_id) VALUES ($f, $n)"
-        );
+        $stmt->execute([trim($libelle)]);
+        return (int) $this->db->lastInsertId();
     }
 
-    public function delierFiliere($niveau_id, $filiere_id) {
-        $n = intval($niveau_id);
-        $f = intval($filiere_id);
-        return $this->conn->query(
-            "DELETE FROM filiere_niveau WHERE niveau_id=$n AND filiere_id=$f"
+    /**
+     * Met à jour le libellé d'un niveau
+     * Retourne true si succès, false si échec
+     */
+    public function update(int $id, string $libelle): bool {
+        $stmt = $this->db->prepare(
+            'UPDATE niveau
+             SET libelle = ?
+             WHERE id_niveau = ?'
         );
+        return $stmt->execute([trim($libelle), $id]);
+    }
+
+    /**
+     * Supprime un niveau par son id
+     *  Vérifier avant avec isUsed() qu'aucune inscription ou mémoire n'y est lié
+     * Retourne true si succès, false si échec
+     */
+    public function delete(int $id): bool {
+        $stmt = $this->db->prepare(
+            'DELETE FROM niveau
+             WHERE id_niveau = ?'
+        );
+        return $stmt->execute([$id]);
+    }
+
+    /**
+     * Vérifie si un niveau avec ce libellé existe déjà
+     * Utilisé avant create pour éviter les doublons
+     */
+    public function existsByLibelle(string $libelle): bool {
+        $stmt = $this->db->prepare(
+            'SELECT COUNT(*) as total
+             FROM niveau
+             WHERE libelle = ?'
+        );
+        $stmt->execute([trim($libelle)]);
+        return $stmt->fetch()['total'] > 0;
+    }
+
+    /**
+     * Vérifie si un niveau est utilisé dans une inscription ou un mémoire
+     * Utilisé avant delete pour éviter les erreurs de contrainte FK
+     */
+    public function isUsed(int $id): bool {
+        // Vérification dans les inscriptions (niveau d'inscription)
+        $stmt = $this->db->prepare(
+            'SELECT COUNT(*) as total
+             FROM inscription
+             WHERE id_niveau = ?'
+        );
+        $stmt->execute([$id]);
+        if ($stmt->fetch()['total'] > 0) return true;
+
+        // Vérification dans les inscriptions (niveau du diplôme)
+        $stmt = $this->db->prepare(
+            'SELECT COUNT(*) as total
+             FROM inscription
+             WHERE niveau_diplome = ?'
+        );
+        $stmt->execute([$id]);
+        if ($stmt->fetch()['total'] > 0) return true;
+
+        // Vérification dans les mémoires archivés
+        $stmt = $this->db->prepare(
+            'SELECT COUNT(*) as total
+             FROM memoire
+             WHERE id_niveau_archive = ?'
+        );
+        $stmt->execute([$id]);
+        return $stmt->fetch()['total'] > 0;
     }
 }

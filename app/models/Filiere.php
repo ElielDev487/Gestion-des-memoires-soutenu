@@ -1,69 +1,118 @@
 <?php
+// File : app/models/Filiere.php
+// Gestion des filières en base de données
+// CRUD complet : getAll, getById, create, update, delete
 
 class Filiere {
-    private $conn;
-    private $table = 'filiere';
 
-    public $id;
-    public $nom;
-    
+    private PDO $db;
 
-    public function __construct($db) {
-        $this->conn = $db;
+    public function __construct() {
+        $this->db = Database::getInstance()->getConnection();
     }
 
-    public function getAll() {
-        $sql = "SELECT * FROM {$this->table} ORDER BY nom ASC";
-        return $this->conn->query($sql);
+    /**
+     * Retourne toutes les filières triées par nom
+     * Utilisé dans : selects des formulaires, liste référentiel
+     */
+    public function getAll(): array {
+        $stmt = $this->db->query(
+            'SELECT id_filiere, nom_filiere
+             FROM filiere
+             ORDER BY nom_filiere ASC'
+        );
+        return $stmt->fetchAll();
     }
 
-    public function getById($id) {
-        $id = intval($id);
-        $sql = "SELECT * FROM {$this->table} WHERE id = $id LIMIT 1";
-        $result = $this->conn->query($sql);
-        return $result ? $result->fetch_assoc() : null;
+    /**
+     * Retourne une filière par son id
+     * Utilisé dans : vérification avant update/delete
+     */
+    public function getById(int $id): ?array {
+        $stmt = $this->db->prepare(
+            'SELECT id_filiere, nom_filiere
+             FROM filiere
+             WHERE id_filiere = ?'
+        );
+        $stmt->execute([$id]);
+        $result = $stmt->fetch();
+        return $result ?: null;
     }
 
-    public function getNiveau($filiere_id) {
-        $filiere_id = intval($filiere_id);
-        $sql = "SELECT n.* FROM niveaux n
-                INNER JOIN filiere_niveau fn ON fn.niveau_id = n.id
-                WHERE fn.filiere_id = $filiere_id
-                ORDER BY n.ordre ASC";
-        return $this->conn->query($sql);
+    /**
+     * Crée une nouvelle filière
+     * Retourne l'id inséré ou false si échec
+     */
+    public function create(string $nom): int|false {
+        $stmt = $this->db->prepare(
+            'INSERT INTO filiere (nom_filiere)
+             VALUES (?)'
+        );
+        $stmt->execute([trim($nom)]);
+        return (int) $this->db->lastInsertId();
     }
 
-    public function create() {
-        $nom       = $this->conn->real_escape_string($this->nom);
-        $sql = "INSERT INTO {$this->table} (nom)
-                VALUES ('$nom')";
-        if ($this->conn->query($sql)) {
-            $this->id = $this->conn->insert_id;
-            return true;
-        }
-        return false;
+    /**
+     * Met à jour le nom d'une filière
+     * Retourne true si succès, false si échec
+     */
+    public function update(int $id, string $nom): bool {
+        $stmt = $this->db->prepare(
+            'UPDATE filiere
+             SET nom_filiere = ?
+             WHERE id_filiere = ?'
+        );
+        return $stmt->execute([trim($nom), $id]);
     }
 
-    public function update() {
-        $id          = intval($this->id);
-        $nom        = $this->conn->real_escape_string($this->nom);
-        $sql = "UPDATE {$this->table}
-                SET code='$nom'
-                WHERE id=$id";
-        return $this->conn->query($sql);
+    /**
+     * Supprime une filière par son id
+     * Vérifier avant qu'aucune inscription ou mémoire n'y est lié
+     * Retourne true si succès, false si échec
+     */
+    public function delete(int $id): bool {
+        $stmt = $this->db->prepare(
+            'DELETE FROM filiere
+             WHERE id_filiere = ?'
+        );
+        return $stmt->execute([$id]);
     }
 
-    public function delete($id) {
-        $id = intval($id);
-        $this->conn->query("DELETE FROM filiere_niveau WHERE filiere_id=$id");
-        return $this->conn->query("DELETE FROM {$this->table} WHERE id=$id");
+    /**
+     * Vérifie si une filière avec ce nom existe déjà
+     * Utilisé avant create pour éviter les doublons
+     */
+    public function existsByNom(string $nom): bool {
+        $stmt = $this->db->prepare(
+            'SELECT COUNT(*) as total
+             FROM filiere
+             WHERE nom_filiere = ?'
+        );
+        $stmt->execute([trim($nom)]);
+        return $stmt->fetch()['total'] > 0;
     }
 
-    public function codeExiste($nom, $exclude_id = null) {
-        $code = $this->conn->real_escape_string($nom);
-        $sql  = "SELECT id FROM {$this->table} WHERE code='$nom'";
-        if ($exclude_id) $sql .= " AND id!=" . intval($exclude_id);
-        $r = $this->conn->query($sql);
-        return $r && $r->num_rows > 0;
+    /**
+     * Vérifie si une filière est utilisée dans une inscription ou un mémoire
+     * Utilisé avant delete pour éviter les erreurs de contrainte FK
+     */
+    public function isUsed(int $id): bool {
+        // Vérification dans les inscriptions
+        $stmt = $this->db->prepare(
+            'SELECT COUNT(*) as total
+             FROM inscription
+             WHERE id_filiere = ?'
+        );
+        $stmt->execute([$id]);
+        if ($stmt->fetch()['total'] > 0) return true;
+
+        // Vérification dans les mémoires archivés
+        $stmt = $this->db->prepare(
+            'SELECT COUNT(*) as total
+             FROM memoire
+             WHERE id_filiere_archive = ?'
+        );
+        $stmt->execute([$id]);
+        return $stmt->fetch()['total'] > 0;
     }
 }
