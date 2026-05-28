@@ -67,7 +67,7 @@ class Niveau {
 
     /**
      * Supprime un niveau par son id
-     *  Vérifier avant avec isUsed() qu'aucune inscription ou mémoire n'y est lié
+     * Vérifier avant avec isUsed() qu'aucune inscription ou mémoire n'y est lié
      * Retourne true si succès, false si échec
      */
     public function delete(int $id): bool {

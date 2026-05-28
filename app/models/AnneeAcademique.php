@@ -2,13 +2,17 @@
 // File : app/models/AnneeAcademique.php
 // Gestion des années académiques en base de données
 // CRUD complet : getAll, getById, create, update, delete
+
 class AnneeAcademique {
+
     private PDO $db;
+
     public function __construct() {
         $this->db = Database::getInstance()->getConnection();
     }
+
     /**
-     * Retourne toutes les années académiques triées par libellé décroissant
+     * Retourne toutes les années académiques, la plus récente en premier
      * Utilisé dans : selects des formulaires, liste référentiel
      */
     public function getAll(): array {
@@ -19,6 +23,7 @@ class AnneeAcademique {
         );
         return $stmt->fetchAll();
     }
+
     /**
      * Retourne une année académique par son id
      * Utilisé dans : vérification avant update/delete
@@ -27,17 +32,18 @@ class AnneeAcademique {
         $stmt = $this->db->prepare(
             'SELECT id_annee_academique, libelle
              FROM annee_academique
-             WHERE id_annee_annee_academique = ?'
+             WHERE id_annee_academique = ?'
         );
         $stmt->execute([$id]);
         $result = $stmt->fetch();
         return $result ?: null;
     }
+
     /**
      * Crée une nouvelle année académique
-     * Retourne l'id inséré ou false si échec
+     * Retourne l'id inséré
      */
-    public function create(string $libelle): int|false {
+    public function create(string $libelle): int {
         $stmt = $this->db->prepare(
             'INSERT INTO annee_academique (libelle)
              VALUES (?)'
@@ -45,6 +51,7 @@ class AnneeAcademique {
         $stmt->execute([trim($libelle)]);
         return (int) $this->db->lastInsertId();
     }
+
     /**
      * Met à jour le libellé d'une année académique
      * Retourne true si succès, false si échec
@@ -53,24 +60,26 @@ class AnneeAcademique {
         $stmt = $this->db->prepare(
             'UPDATE annee_academique
              SET libelle = ?
-             WHERE id_annee_annee_academique = ?'
+             WHERE id_annee_academique = ?'
         );
         return $stmt->execute([trim($libelle), $id]);
     }
+
     /**
      * Supprime une année académique par son id
-     *  Vérifier avant qu'aucune inscription ou mémoire n'y est lié
+     * Vérifier avant avec isUsed() qu'aucune inscription ou mémoire n'y est lié
      * Retourne true si succès, false si échec
      */
     public function delete(int $id): bool {
         $stmt = $this->db->prepare(
             'DELETE FROM annee_academique
-             WHERE id_annee_annee_academique = ?'
+             WHERE id_annee_academique = ?'
         );
         return $stmt->execute([$id]);
     }
+
     /**
-     * Vérifie si une année académique avec ce libellé existe déjà
+     * Vérifie si un libellé existe déjà
      * Utilisé avant create pour éviter les doublons
      */
     public function existsByLibelle(string $libelle): bool {
@@ -82,8 +91,9 @@ class AnneeAcademique {
         $stmt->execute([trim($libelle)]);
         return $stmt->fetch()['total'] > 0;
     }
+
     /**
-     * Vérifie si une année académique est utilisée dans une inscription ou un mémoire
+     * Vérifie si une année est utilisée dans une inscription ou un mémoire
      * Utilisé avant delete pour éviter les erreurs de contrainte FK
      */
     public function isUsed(int $id): bool {
@@ -91,15 +101,16 @@ class AnneeAcademique {
         $stmt = $this->db->prepare(
             'SELECT COUNT(*) as total
              FROM inscription
-             WHERE id_annee_archive = ?'
+             WHERE id_annee_academique = ?'
         );
         $stmt->execute([$id]);
         if ($stmt->fetch()['total'] > 0) return true;
+
         // Vérification dans les mémoires archivés
         $stmt = $this->db->prepare(
             'SELECT COUNT(*) as total
              FROM memoire
-             WHERE id_annee_academique = ?'
+             WHERE id_annee_archive = ?'
         );
         $stmt->execute([$id]);
         return $stmt->fetch()['total'] > 0;

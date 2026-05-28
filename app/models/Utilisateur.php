@@ -47,4 +47,22 @@ class Utilisateur {
 
         return $stats;
     }
+	
+	/**
+	 * Crée un nouveau compte utilisateur
+	 * Retourne l'id inséré
+	 * Utilisé lors de la création d'un étudiant ou professeur par le DE
+	 */
+	public function create(array $data): int {
+		$stmt = $this->db->prepare(
+			'INSERT INTO utilisateur (email, mot_de_passe, role)
+			VALUES (?, ?, ?)'
+		);
+		$stmt->execute([
+			$data['email'],
+			$data['mot_de_passe'],
+			$data['role'],
+		]);
+		return (int) $this->db->lastInsertId();
+	}
 }

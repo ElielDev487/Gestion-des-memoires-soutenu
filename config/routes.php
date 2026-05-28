@@ -34,6 +34,8 @@ $router->add('GET',  'professeur/dashboard',        'ProfesseurController',  'da
 $router->add('GET',  'professeur/memoires',         'ProfesseurController',  'listeMemoiresProf');
 $router->add('POST', 'professeur/valider/{id}',     'ProfesseurController',  'valider');
 $router->add('POST', 'professeur/refuser/{id}',     'ProfesseurController',  'refuser');
+// API — Autocomplete professeur (utilisé par le formulaire d'archivage)
+$router->add('GET', 'api/professeurs', 'ProfesseurController', 'search');
 
 // Etudiant
 $router->add('GET',  'etudiant/dashboard',          'MemoireController',     'dashboardEtudiant');
