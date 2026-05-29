@@ -45,7 +45,7 @@ $router->add('POST', 'etudiant/soumettre',          'MemoireController',     'so
 
 // Catalogue
 $router->add('GET',  'catalogue',                   'CatalogueController',   'index');
-$router->add('GET',  'catalogue/recherche',         'CatalogueController',   'recherche');
+// $router->add('GET',  'catalogue/recherche',         'CatalogueController',   'recherche');
 $router->add('GET',  'catalogue/memoire/{id}',      'CatalogueController',   'detail');
 
 // PDF proxy

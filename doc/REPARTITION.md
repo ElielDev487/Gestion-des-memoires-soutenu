@@ -1,244 +1,189 @@
 # 👥 RÉPARTITION DES TÂCHES — Plateforme Mémoires
-## Équipe de 5 · 5 jours
+
+## ⚠️ IMPORTANT : Nouveau plan basé sur PHASE 1
+
+**PHASE 1 priorité** : Rendre accessible le catalogue des anciens mémoires
+- Catalogue (liste + recherche + détail)
+- Gestion des étudiants (qui va consulter le catalogue)
+- Interactions (likes + commentaires)
+- Lecteur PDF sécurisé
+
+**PHASE 2 ultérieure** : Soumission étudiant + validation professeur
 
 ---
 
-## 🧑‍💻 ELIEL — Chef de projet · Back-end critique
+## 🧑‍💻 ELIEL — Back-end (Catalogue + Interactions + PDF)
 
-> Tâches critiques, architecture, sécurité, intégration finale
+> Chef de projet · Tâches critiques et intégration
 
-### J1 — Infrastructure
-- [ ] Lancer `setup.bat` + vérifier l'arborescence
-- [ ] Importer `schema.sql` + créer `seeds.sql`
-- [ ] Coder `core/Database.php` (singleton PDO)
-- [ ] Coder `core/Router.php`
-- [ ] Coder `core/Session.php` + `core/Auth.php`
-- [ ] Coder `config/config.php` + `config/routes.php`
-- [ ] Coder `public/index.php` + `public/.htaccess`
-- [ ] Coder `AuthController.php` + `app/models/Utilisateur.php`
-- [ ] Coder `app/views/layouts/auth.php` + `app/views/auth/login.php`
-
-### J2 — Archivage mémoires ← PRIORITÉ ABSOLUE
-- [ ] Coder `app/models/Memoire.php`
-- [ ] Coder `MemoireController.php` → archivage DE
-  - Upload PDF sécurisé dans `storage/memoires/`
-  - Enregistrement en DB avec `statut = publie` directement
-- [ ] Coder `PdfController.php` (proxy sécurisé — vérifie session avant de servir)
-- [ ] Coder `app/views/layouts/pdf.php`
-- [ ] Intégrer `PDF.js` dans `public/assets/js/pdfviewer.js`
-
-### J3 — Catalogue + Interactions
+### Priorité 🔴 IMMÉDIATE : Catalogue
 - [ ] Coder `CatalogueController.php`
-  - Liste mémoires publiés
-  - Recherche avancée (filière, niveau, centre, professeur, année)
-  - Page détail mémoire
-- [ ] Coder `LikeController.php` (AJAX + JSON)
-- [ ] Coder `CommentaireController.php` (AJAX + JSON)
-- [ ] Coder `app/models/Like.php` + `app/models/Commentaire.php`
+  - `index()` → liste mémoires publiés (paginée)
+  - `recherche()` → recherche avancée
+  - `detail(id)` → détail d'un mémoire
+- [ ] Ajouter méthodes à `Memoire.php`
+  - `getAllPublished()` → tous les mémoires avec statut='publie'
+  - `getById(id)` → récupérer un mémoire complet
+  - `search(filters)` → recherche par filière/niveau/centre/professeur/année
+  - `getCommentaires(id)` → commentaires d'un mémoire
+  - `getLikeCount(id)` → nombre de likes
+  - `getCommentCount(id)` → nombre de commentaires
 
-### J4 — Dashboard professeur + étudiant
-- [ ] Coder `ProfesseurController.php` → validation / refus mémoire
-- [ ] Coder dashboard étudiant (statut mémoire soumis)
-- [ ] Aider Hidayath sur les bugs remontés
+### Priorité 🟡 Interactions (après catalogue + gestion étudiants)
+- [ ] Coder `LikeController.php`
+  - `toggle(id)` → AJAX : like/unlike un mémoire
+- [ ] Coder `CommentaireController.php`
+  - `ajouter(id)` → AJAX : ajouter commentaire
+- [ ] Coder `Like.php` model
+  - `toggle(id_memoire, id_utilisateur)`
+  - `countByMemoire(id_memoire)`
+  - `hasLiked(id_memoire, id_utilisateur)`
+- [ ] Coder `Commentaire.php` model
+  - `ajouter(data)`
+  - `getByMemoire(id_memoire)`
 
-### J5 — Tests + Intégration finale
-- [ ] Configurer `tests/phpunit.xml` + `tests/bootstrap.php`
-- [ ] Écrire `tests/Unit/AuthTest.php`
-- [ ] Écrire `tests/Feature/MemoireArchivageTest.php`
-- [ ] Écrire `tests/Feature/CatalogueTest.php`
-- [ ] Revue de code globale + corrections
-- [ ] Recette finale + démo
+### Priorité 🟡 PDF sécurisé (après interactions)
+- [ ] Coder `PdfController.php`
+  - `servir(id)` → proxy sécurisé (vérifie session + route vers storage/)
 
 ---
 
-## 👩‍💻 HIDAYATH — Back-end · Seconde du chef
+## 👩‍💻 HIDAYATH — Back-end (Données métier)
 
-> Gestion des données métier (étudiants, professeurs, référentiel)
+> Gestion des modèles et controllers DE
 
-### J1 — Models métier
-- [ ] Coder `app/models/Etudiant.php`
-- [ ] Coder `app/models/Professeur.php`
-- [ ] Coder `app/models/Inscription.php`
-  - Logique passage diplômé (`niveau_diplome` + `peut_soumettre = TRUE`)
-- [ ] Coder `app/models/Filiere.php` + `Niveau.php` + `Centre.php` + `AnneeAcademique.php`
+### Priorité 🟡 Finir Référentiel (partiellement fait)
+- [ ] Finir `ReferentielController.php`
+  - `creerCentre()`, `supprimerCentre()`
+  - `creerAnnee()`, `supprimerAnnee()` (pour `id_annee_academique`)
 
-### J2 — Controllers DE
+### Priorité 🔴 IMMÉDIATE : Gestion des étudiants (après catalogue)
 - [ ] Coder `EtudiantController.php`
-  - Liste étudiants
-  - Création étudiant + inscription (formulaire unique)
-  - Passage diplômé (POST → choisir L3/M1/M2)
-- [ ] Coder `ProfesseurController.php`
-  - Liste professeurs
-  - Création professeur
+  - `liste()` → tous les étudiants avec search
+  - `creer()` → crée user + etudiant + inscription (POST)
+  - `diplomer(id)` → POST, change `type_etudiant` à 'diplome' + choisit `niveau_diplome`
+- [ ] Coder `Etudiant.php` model
+  - `getAll()`
+  - `getById(id)`
+  - `create(data)` → crée l'étudiant
+  - `search(query)` → recherche par nom/prenom/matricule
+- [ ] Coder `Inscription.php` model
+  - `create(data)` → crée inscription unique par étudiant
+  - `getByEtudiant(id_etudiant)`
+  - `diplomer(id_inscription, niveau_diplome)` → change type + niveau
 
-### J3 — Référentiel + Dashboards
-- [ ] Coder `ReferentielController.php`
-  - Filières, niveaux, centres, années : créer / supprimer
-- [ ] Coder `DEController.php` (dashboard avec stats)
-- [ ] Coder `AdminController.php` (dashboard + liste utilisateurs)
-
-### J4 — Tests + Corrections
-- [ ] Écrire `tests/Feature/EtudiantTest.php`
-  - Création étudiant + inscription liée
-  - Passage diplômé → `peut_soumettre = TRUE`
-- [ ] Écrire `tests/Feature/AuthLoginTest.php`
-- [ ] Écrire `tests/Unit/ValidatorTest.php`
-- [ ] Corriger les bugs remontés par les fronts
-
-### J5 — Support + Intégration
-- [ ] Support à Eliel pour la recette finale
-- [ ] Vérifier que toutes les routes sont bien reliées aux vues
+### Priorité 🟡 Phase 2 (validation professeur)
+- [ ] Finir `ProfesseurController.php`
+  - `dashboard()` → stats + onglets en attente/validés/refusés
+  - `listeMemoiresProf()` → tous les mémoires pour validation
+  - `valider(id)` → POST, change statut à 'publie'
+  - `refuser(id)` → POST, change statut à 'refuse'
 
 ---
 
-## 🎨 FADEL — Front-end lead
+## 🎨 FADEL — Front-end (Catalogue + Interactions + PDF)
 
-> Le plus solide des 3 front — vues les plus complexes
+> Lead front · Vues complexes
 
-### J1 — CSS global
-- [ ] Coder `public/assets/css/main.css`
-  - Variables CSS (navy `#1A2E5A`, rouge `#B71C1C`, blanc)
-  - Sidebar desktop + hamburger mobile
-  - Topbar
-  - Cards mémoires (grille 3 colonnes)
-  - Badges statuts
-  - Responsive mobile-first
-- [ ] Coder `app/views/layouts/main.php`
-  - Inclusion sidebar + topbar + zone contenu
-  - Variable `$role` pour adapter le menu
-
-### J2 — Vues archivage ← PRIORITÉ
-- [ ] Coder `app/views/memoires/archiver.php`
-  - Tous les selects dynamiques (filière, niveau, centre, année, professeur)
-  - Zone upload PDF (glisser-déposer)
-  - Colonne gauche infos / colonne droite résumé
-- [ ] Coder `app/views/memoires/liste_de.php`
-
-### J3 — Catalogue
+### Priorité 🔴 IMMÉDIATE : Catalogue
 - [ ] Coder `app/views/catalogue/index.php`
-  - Grille 3 colonnes de cards
-  - Chips filtres rapides
-  - Barre de recherche
+  - Grille 3 colonnes de cards mémoires
+  - Barre recherche (simple + avancée)
+  - Chips filtres rapides (filière / niveau / centre / année / professeur)
   - Pagination
+  - Affiche : titre, auteur, filière, niveau, centre, année, prof, date, stats (likes/commentaires)
 - [ ] Coder `app/views/catalogue/detail.php`
-  - Infos mémoire
-  - Bouton like (AJAX)
-  - Section commentaires (AJAX)
-  - Bouton "Lire le mémoire"
+  - Infos complètes du mémoire
+  - Bouton like (AJAX + compteur)
+  - Section commentaires (AJAX + liste dynamique)
+  - Bouton "Lire le mémoire" → link vers `/pdf/{id}`
+  - Sidebar avec infos académiques
 
-### J4 — JS interactif
-- [ ] Coder `public/assets/js/main.js`
-  - Toggle sidebar mobile (hamburger)
-  - AJAX likes (fetch + mise à jour compteur)
-  - AJAX commentaires (fetch + ajout dynamique)
-  - Ouverture modale "Passer diplômé"
+### Priorité 🟡 Interactions (après catalogue + gestion étudiants)
+- [ ] Ajouter AJAX à `public/assets/js/main.js`
+  - Toggle like (fetch POST → `/like/{id}`, update compteur)
+  - Ajouter commentaire (fetch POST → `/commentaire/{id}`, add dynamique)
+  - Validation formulaire commentaire
 
-### J5 — Corrections + responsive
-- [ ] Tests visuels sur mobile et desktop
-- [ ] Corrections CSS remontées par l'équipe
-- [ ] Coder `app/views/shared/flash.php`
+### Priorité 🟡 PDF (après interactions)
+- [ ] Intégrer PDF.js dans layout
+  - Coder `app/views/layouts/pdf.php`
+  - Canvas PDF.js (gauche) + panel infos/likes/commentaires (droite)
+  - Styles sombre (`#111827` fond)
 
 ---
 
-## 👩‍🎨 PRINCESSE — Front-end
+## 👩‍🎨 PRINCESSE — Front-end (Gestion DE)
 
-> Vues DE, étudiants, professeurs
+> Vues pour la Direction d'Études
 
-### J1 — Login + Shared
-- [ ] Coder `app/views/auth/login.php`
-  - Carte centrée
-  - Badges rôles
-  - Responsive
-- [ ] Coder `app/views/shared/sidebar.php` (menu dynamique selon rôle)
-- [ ] Coder `app/views/shared/topbar.php`
-- [ ] Coder `app/views/shared/403.php` + `404.php`
-
-### J2 — Dashboards
-- [ ] Coder `app/views/de/dashboard.php`
-  - 4 cartes stats
-  - Actions rapides
-  - Tableau derniers inscrits
-- [ ] Coder `app/views/admin/dashboard.php`
-- [ ] Coder `app/views/admin/utilisateurs.php`
-
-### J3 — Gestion étudiants
+### Priorité 🔴 IMMÉDIATE : Gestion des étudiants (après Fadel catalogue)
 - [ ] Coder `app/views/etudiants/liste.php`
-  - Barre recherche
-  - Tableau avec bouton "Passer diplômé" sur chaque ligne
-  - Formulaire création en bas (infos perso + inscription)
+  - Tableau tous les étudiants (matricule, nom, prenom, filière, niveau, centre, années, type)
+  - Barre recherche (search + filter par type : simple/diplome)
+  - Bouton "Passer diplômé" sur chaque ligne (ouvre modale)
+  - Formulaire création en bas (ou modale)
+    - Inputs : nom, prenom, matricule, telephone, filière, niveau, centre, année
+    - Génère user + etudiant + inscription automatiquement
 - [ ] Coder `app/views/etudiants/modal_diplome.php`
   - Overlay sombre
-  - Radio buttons L3 / M1 / M2
+  - Titre "Passer l'étudiant au statut diplômé"
+  - Radio buttons : L3 / M1 / M2 (choisir le niveau diplôme)
   - Champ année diplôme
-  - Avertissement orange
+  - Avertissement orange : "cet étudiant pourra soumettre son mémoire"
+  - Boutons Annuler / Valider
 
-### J4 — Gestion professeurs
-- [ ] Coder `app/views/professeurs/liste.php`
-  - Tableau + formulaire création
+### Priorité 🟡 Référentiel (optionnel, peut être partiellement fait)
+- [ ] Vérifier que `app/views/referentiel/index.php` existe et fonctionne
+  - 4 panels : Filières / Niveaux / Centres / Années
+  - Chaque panel : input création + liste avec boutons supprimer
+
+### Priorité 🟡 Phase 2 (validation professeur)
+- [ ] Coder `app/views/professeurs/liste.php` (après gestion étudiants)
+  - Tableau tous les professeurs
+  - Bouton "Ajouter professeur"
 - [ ] Coder `app/views/professeurs/dashboard.php`
-  - 4 cartes stats
-  - Onglets (en attente / validés / refusés / tous)
+  - Stats (en attente / validés / refusés)
+  - Onglets pour filtrer par statut
   - Tableau avec boutons Lire / Valider / Refuser
-
-### J5 — Corrections
-- [ ] Corrections + responsive sur toutes ses vues
-- [ ] Support [Sans Nom] si besoin
 
 ---
 
-## 👨‍🎨 [SANS NOM] — Front-end
+## 👨‍🎨 STEEVE — Front-end (PDF + Référentiel + Étudiant)
 
-> Vues lecteur PDF, référentiel, étudiant
+> Remaining vues
 
-### J1 — Layouts
-- [ ] Coder `app/views/layouts/pdf.php`
-  - Fond sombre (`#111827`)
-  - Sidebar sombre réduite
-  - Zone canvas PDF.js (gauche)
-  - Panel infos + likes + commentaires (droite)
-- [ ] Coder `app/views/layouts/auth.php`
-
-### J2 — Référentiel
-- [ ] Coder `app/views/referentiel/index.php`
-  - 3 panels côte à côte (filières / niveaux / centres)
+### Priorité 🟡 Référentiel (peut commencer maintenant)
+- [ ] Vérifier/finir `app/views/referentiel/index.php`
+  - 4 panels côte à côte
   - Champ ajout + liste avec bouton supprimer sur chaque item
   - Panel années académiques en bas
 
-### J3 — Validation professeur + étudiant
-- [ ] Coder `app/views/professeurs/validation.php`
-  - Header mémoire + badge statut
-  - Visionneuse PDF (canvas PDF.js)
-  - Panel décision (commentaire + boutons Valider / Refuser)
+### Priorité 🟡 PDF sécurisé (après Fadel interactions)
+- [ ] Intégrer PDF.js avec Eliel
+  - Ajouter `pdfviewer.js` dans `public/assets/js/`
+  - Tester lecteur sur layout pdf.php
+
+### Priorité 🟡 Étudiant dashboard (Phase 2)
 - [ ] Coder `app/views/etudiant/dashboard.php`
   - 4 cartes stats
-  - Bloc statut mémoire
+  - Bloc statut du mémoire (si soumis : en_attente/publie/refuse)
   - Récemment consultés
-
-### J4 — Vues restantes
 - [ ] Coder `app/views/etudiant/mon_memoire.php`
-- [ ] Coder `app/views/memoires/liste_prof.php`
-  - Onglets en attente / validés / refusés
-  - Tableau avec actions
 - [ ] Coder `app/views/memoires/soumettre.php` ← PHASE 2
-- [ ] Intégrer `pdfviewer.js` dans le layout PDF (avec Eliel)
-
-### J5 — Corrections
-- [ ] Tests visuels lecteur PDF sur mobile
-- [ ] Corrections remontées
+- [ ] Coder `app/views/memoires/liste_prof.php`
 
 ---
 
-## 🔗 DÉPENDANCES CRITIQUES
+## 🔗 DÉPENDANCES ET BLOCKERS
 
-| Dev | Attend | De qui | Quand |
-|-----|--------|--------|-------|
-| Tout le monde | `core/` + `config/` + routes | Eliel | Fin J1 |
-| Tout le monde | `app/views/layouts/main.php` | Fadel | Fin J1 |
-| Fadel | `MemoireController` (selects dynamiques) | Eliel | Fin J2 |
-| Fadel | `CatalogueController` | Eliel | Fin J3 |
-| [Sans Nom] | `PdfController` fonctionnel | Eliel | Fin J2 |
-| Princesse | `EtudiantController` | Hidayath | Fin J2 |
-| Hidayath | `core/Database.php` + `core/Auth.php` | Eliel | Fin J1 |
+| Qui | Attend | De qui | Quoi |
+|-----|--------|--------|------|
+| Fadel | Backend Catalogue | Eliel | `CatalogueController` + `Memoire.php` methods |
+| Princesse | Backend Étudiants | Hidayath | `EtudiantController` + `Inscription.php` |
+| Fadel | Backend Interactions | Eliel | `LikeController` + `CommentaireController` |
+| Steeve | Backend PDF | Eliel | `PdfController` |
+| Tout | Référentiel fini | Hidayath | Finir `ReferentielController` |
 
 ---
 
@@ -248,4 +193,7 @@
 - **Zéro `mysqli`** — PDO uniquement
 - **Zéro `md5` / `sha1`** — `password_hash()` / `password_verify()` uniquement
 - **Zéro PDF en accès direct** — tout passe par `PdfController`
-- Eliel valide chaque intégration dans le code commun
+- **Zéro pagination SQL** → gérer avec `LIMIT` + `OFFSET`
+- **AJAX responses** → toujours JSON (`Content-Type: application/json`)
+- Eliel valide chaque intégration + routes + models
+
