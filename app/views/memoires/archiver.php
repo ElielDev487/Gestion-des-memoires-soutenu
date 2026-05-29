@@ -172,41 +172,47 @@ ob_start();
                 </div>
             </div>
 
-            <!-- Professeur directeur — autocomplete -->
-            <div class="form-group">
-                <label>
-                    Professeur directeur
-                    <span class="optional">— optionnel, laissez vide si inconnu</span>
-                </label>
+            <!-- Professeur directeur — autocomplete + saisie libre -->
+			<div class="form-group">
+				<label>
+					Professeur directeur
+					<span class="optional">— optionnel</span>
+				</label>
 
-                <!-- Champ de recherche visible -->
-                <input
-                    type="text"
-                    id="prof_search"
-                    placeholder="Taper le nom du professeur pour rechercher..."
-                    autocomplete="off"
-                >
+				<!-- Champ de recherche / saisie libre -->
+				<input
+					type="text"
+					id="prof_search"
+					name="directeur_nom_libre"
+					placeholder="Taper le nom du professeur..."
+					autocomplete="off"
+					value="<?= htmlspecialchars($_POST['directeur_nom_libre'] ?? '') ?>"
+				>
+				<small class="optional">
+					Si le professeur figure dans la liste, sélectionnez-le.
+					Sinon, le nom saisi sera enregistré directement.
+				</small>
 
-                <!-- Dropdown des résultats -->
-                <div id="prof_results" class="autocomplete-dropdown" style="display:none"></div>
+				<!-- Dropdown des résultats -->
+				<div id="prof_results" class="autocomplete-dropdown" style="display:none"></div>
 
-                <!-- Champ caché soumis avec le formulaire -->
-                <input
-                    type="hidden"
-                    id="id_professeur"
-                    name="id_professeur"
-                    value="<?= htmlspecialchars($_POST['id_professeur'] ?? '') ?>"
-                >
+				<!-- Champ caché — rempli uniquement si sélection dans la liste -->
+				<input
+					type="hidden"
+					id="id_professeur"
+					name="id_professeur"
+					value="<?= htmlspecialchars($_POST['id_professeur'] ?? '') ?>"
+				>
 
-                <!-- Tag affiché après sélection -->
-                <div id="prof_selected" class="selected-tag" style="display:none">
-                    <span id="prof_selected_label"></span>
-                    <button type="button" onclick="clearProf()">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                </div>
+				<!-- Tag affiché après sélection dans la liste -->
+				<div id="prof_selected" class="selected-tag" style="display:none">
+					<span id="prof_selected_label"></span>
+					<button type="button" onclick="clearProf()">
+						<i class="fa-solid fa-xmark"></i>
+					</button>
+				</div>
 
-            </div>
+			</div>
 
             <!-- Résumé -->
             <div class="form-group">

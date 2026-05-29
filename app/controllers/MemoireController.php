@@ -47,7 +47,24 @@ class MemoireController {
         $id_niveau    = intval($_POST['id_niveau']    ?? 0);
         $id_centre    = intval($_POST['id_centre']    ?? 0);
         $id_annee     = intval($_POST['id_annee']     ?? 0);
-        $id_professeur = intval($_POST['id_professeur'] ?? 0);
+		// Professeur — optionnel
+		// Si un id est sélectionné via autocomplete → on utilise l'id
+		// Si un nom libre est saisi → on le stocke dans directeur_nom
+		$id_professeur = intval($_POST['id_professeur'] ?? 0);
+		$directeur_nom = trim($_POST['directeur_nom_libre'] ?? '');
+
+		// Si prof sélectionné dans la liste, récupérer son nom complet
+		if ($id_professeur > 0) {
+			$prof          = new Professeur();
+			$profData      = $prof->getById($id_professeur);
+			$directeur_nom = $profData
+				? $profData['prenom'] . ' ' . $profData['nom']
+				: $directeur_nom;
+			$id_professeur = $id_professeur;
+		} else {
+			// Pas de prof sélectionné — on garde le nom libre saisi
+			$id_professeur = null;
+		}
 
         if (empty($titre))         $errors[] = 'Le titre est obligatoire.';
         if (empty($theme))         $errors[] = 'Le thème est obligatoire.';
@@ -119,6 +136,7 @@ class MemoireController {
             'id_centre'     => $id_centre,
             'id_annee'      => $id_annee,
             'id_professeur' => $id_professeur,
+    		'directeur_nom' => $directeur_nom,
         ]);
 
         Session::flash('success', 'Mémoire archivé et publié avec succès.');

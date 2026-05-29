@@ -113,23 +113,25 @@ document.addEventListener('DOMContentLoaded', function () {
      * Remplace le champ de recherche par un tag de confirmation
      */
     window.selectProf = function (prof) {
-        profHidden.value           = prof.id_professeur;
-        profLabel.textContent      = prof.prenom + ' ' + prof.nom;
-        profSelected.style.display = 'flex';
-        profSearch.style.display   = 'none';
-        profResults.style.display  = 'none';
-    };
+		const fullName = prof.prenom + ' ' + prof.nom;
+		profHidden.value           = prof.id_professeur;
+		profSearch.value           = fullName; // garde le nom dans le champ
+		profLabel.textContent      = fullName;
+		profSelected.style.display = 'flex';
+		profSearch.style.display   = 'none';
+		profResults.style.display  = 'none';
+	};	
 
     /**
      * Efface la sélection du professeur
      * Remet le champ de recherche visible
      */
     window.clearProf = function () {
-        profHidden.value           = '';
-        profLabel.textContent      = '';
-        profSelected.style.display = 'none';
-        profSearch.style.display   = 'block';
-        profSearch.value           = '';
-    };
+		profHidden.value           = '';
+		profLabel.textContent      = '';
+		profSelected.style.display = 'none';
+		profSearch.style.display   = 'block';
+		profSearch.value           = '';
+	};
 
 });

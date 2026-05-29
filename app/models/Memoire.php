@@ -17,44 +17,60 @@ class Memoire {
      * Les champs *_archive portent les infos académiques
      * Retourne l'id du mémoire créé
      */
-    public function archiver(array $data): int {
-        $stmt = $this->db->prepare(
-            'INSERT INTO memoire (
-                titre,
-                theme,
-                resume,
-                fichier_pdf,
-                statut,
-                date_publication,
-                auteur_nom,
-                auteur_prenom,
-                id_inscription,
-                id_filiere_archive,
-                id_niveau_archive,
-                id_centre_archive,
-                id_annee_archive,
-                id_professeur
-            ) VALUES (
-                ?, ?, ?, ?, "publie", NOW(),
-                ?, ?, NULL,
-                ?, ?, ?, ?, ?
-            )'
-        );
-        $stmt->execute([
-            $data['titre'],
-            $data['theme'],
-            $data['resume'],
-            $data['fichier_pdf'],
-            $data['auteur_nom'],
-            $data['auteur_prenom'],
-            $data['id_filiere'],
-            $data['id_niveau'],
-            $data['id_centre'],
-            $data['id_annee'],
-            $data['id_professeur'],
-        ]);
-        return (int) $this->db->lastInsertId();
-    }
+	public function archiver(array $data): int {
+		$stmt = $this->db->prepare(
+			'INSERT INTO memoire (
+				titre,
+				theme,
+				resume,
+				fichier_pdf,
+				statut,
+				date_publication,
+				auteur_nom,
+				auteur_prenom,
+				id_inscription,
+				id_filiere_archive,
+				id_niveau_archive,
+				id_centre_archive,
+				id_annee_archive,
+				id_professeur,
+				directeur_nom
+			) VALUES (
+				:titre,
+				:theme,
+				:resume,
+				:fichier_pdf,
+				"publie",
+				NOW(),
+				:auteur_nom,
+				:auteur_prenom,
+				NULL,
+				:id_filiere,
+				:id_niveau,
+				:id_centre,
+				:id_annee,
+				:id_professeur,
+				:directeur_nom
+			)'
+		);
+
+		$stmt->execute([
+			':titre'         => $data['titre'],
+			':theme'         => $data['theme'],
+			':resume'        => $data['resume']        ?? null,
+			':fichier_pdf'   => $data['fichier_pdf'],
+			':auteur_nom'    => $data['auteur_nom'],
+			':auteur_prenom' => $data['auteur_prenom'],
+			':id_filiere'    => $data['id_filiere'],
+			':id_niveau'     => $data['id_niveau'],
+			':id_centre'     => $data['id_centre'],
+			':id_annee'      => $data['id_annee'],
+			':id_professeur' => $data['id_professeur'] ?? null,
+			':directeur_nom' => $data['directeur_nom'] ?? null,
+		]);
+
+		return (int) $this->db->lastInsertId();
+	}
 
     /**
      * Retourne tous les mémoires pour le DE
