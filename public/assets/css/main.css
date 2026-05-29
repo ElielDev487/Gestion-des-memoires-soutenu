@@ -894,4 +894,125 @@ tbody td {
     .auth-card {
         padding: 24px 18px;
     }
+}/* ── Formulaire actions ──────────────────────────────── */
+.form-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid var(--gray-lt);
+}
+
+/* ── Champ requis / optionnel ────────────────────────── */
+.required { color: var(--red); }
+.optional  { color: var(--gray); font-weight: 400; font-size: 12px; }
+
+/* ── Page header avec bouton à droite ───────────────── */
+.page-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* ── Badge compteur ──────────────────────────────────── */
+.count-badge {
+    background: var(--blue-bg);
+    color: var(--blue);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 12px;
+    margin-left: 8px;
+}
+
+/* ── Lien tableau ────────────────────────────────────── */
+.link-primary {
+    color: var(--blue);
+    font-weight: 600;
+}
+
+.link-primary:hover {
+    text-decoration: underline;
+}
+
+/* ── État vide ───────────────────────────────────────── */
+.empty-state {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--gray);
+}
+
+.empty-state i {
+    color: var(--gray-lt);
+    margin-bottom: 16px;
+}
+
+.empty-state p {
+    margin-bottom: 16px;
+    font-size: 14px;
+}
+
+/* ── Autocomplete ────────────────────────────────────── */
+.autocomplete-dropdown {
+    position: absolute;
+    z-index: 50;
+    background: var(--white);
+    border: 1px solid var(--gray-lt);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    max-height: 220px;
+    overflow-y: auto;
+    width: 100%;
+}
+
+.autocomplete-item {
+    padding: 10px 14px;
+    font-size: 13px;
+    cursor: pointer;
+    color: var(--dark);
+    transition: background 0.15s;
+}
+
+.autocomplete-item:hover {
+    background: var(--blue-bg);
+    color: var(--blue);
+}
+
+.autocomplete-empty {
+    color: var(--gray);
+    cursor: default;
+}
+
+.autocomplete-empty:hover {
+    background: none;
+}
+
+/* ── Tag sélectionné ─────────────────────────────────── */
+.selected-tag {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--blue-bg);
+    border: 1px solid var(--blue);
+    border-radius: var(--radius);
+    font-size: 13px;
+    color: var(--blue);
+    font-weight: 600;
+}
+
+.selected-tag button {
+    background: none;
+    border: none;
+    color: var(--blue);
+    cursor: pointer;
+    font-size: 13px;
+    padding: 0;
+    margin-left: auto;
+}
+
+/* Position relative pour le dropdown */
+.form-group {
+    position: relative;
 }
