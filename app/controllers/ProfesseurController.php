@@ -91,6 +91,17 @@ class ProfesseurController {
      */
     public function listeMemoiresProf(): void {
         Auth::requireRole('professeur');
+
+        $professeur = (new Professeur())->getByUtilisateurId(Session::get('id_utilisateur'));
+        if (!$professeur) {
+            http_response_code(403);
+            require_once ROOT_PATH . '/app/views/shared/403.php';
+            return;
+        }
+
+        $memoireModel = new Memoire();
+        $memoires     = $memoireModel->getAllForProf($professeur['id_professeur']);
+
         require_once ROOT_PATH . '/app/views/memoires/liste_prof.php';
     }
 
@@ -99,7 +110,21 @@ class ProfesseurController {
      */
     public function valider(int $id): void {
         Auth::requireRole('professeur');
-        // Phase 2 — à implémenter
+
+        $professeur = (new Professeur())->getByUtilisateurId(Session::get('id_utilisateur'));
+        if (!$professeur) {
+            http_response_code(403);
+            require_once ROOT_PATH . '/app/views/shared/403.php';
+            return;
+        }
+
+        $memoireModel = new Memoire();
+        if ($memoireModel->valider($id, $professeur['id_professeur'])) {
+            Session::flash('success', 'Mémoire validé et publié avec succès.');
+        } else {
+            Session::flash('error', 'Impossible de valider ce mémoire.');
+        }
+
         header('Location: ' . BASE_URL . '/professeur/memoires');
         exit;
     }
@@ -109,7 +134,21 @@ class ProfesseurController {
      */
     public function refuser(int $id): void {
         Auth::requireRole('professeur');
-        // Phase 2 — à implémenter
+
+        $professeur = (new Professeur())->getByUtilisateurId(Session::get('id_utilisateur'));
+        if (!$professeur) {
+            http_response_code(403);
+            require_once ROOT_PATH . '/app/views/shared/403.php';
+            return;
+        }
+
+        $memoireModel = new Memoire();
+        if ($memoireModel->refuser($id, $professeur['id_professeur'])) {
+            Session::flash('success', 'Mémoire refusé avec succès.');
+        } else {
+            Session::flash('error', 'Impossible de refuser ce mémoire.');
+        }
+
         header('Location: ' . BASE_URL . '/professeur/memoires');
         exit;
     }

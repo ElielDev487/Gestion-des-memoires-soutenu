@@ -151,16 +151,131 @@ class MemoireController {
 
     public function monMemoire(): void {
         Auth::requireRole('etudiant');
+
+        $etudiant    = (new Etudiant())->getByUtilisateur(Session::get('id_utilisateur'));
+        $memoire     = null;
+        $inscription = null;
+        $professeur  = null;
+
+        if ($etudiant) {
+            $memoire     = (new Memoire())->getByEtudiant($etudiant['id_etudiant']);
+            $inscription = (new Inscription())->getByEtudiant($etudiant['id_etudiant']);
+
+            if ($memoire && !empty($memoire['id_professeur'])) {
+                $professeur = (new Professeur())->getById($memoire['id_professeur']);
+            }
+        }
+
         require_once ROOT_PATH . '/app/views/etudiant/mon_memoire.php';
     }
 
     public function showSoumettre(): void {
         Auth::requireRole('etudiant');
+
+        $professeurs = (new Professeur())->getAll();
+        $etudiant     = (new Etudiant())->getByUtilisateur(Session::get('id_utilisateur'));
+        $inscription  = null;
+
+        if ($etudiant) {
+            $inscription = (new Inscription())->getByEtudiant($etudiant['id_etudiant']);
+        }
+
         require_once ROOT_PATH . '/app/views/memoires/soumettre.php';
     }
 
     public function soumettre(): void {
         Auth::requireRole('etudiant');
-        // Phase 2 — à implémenter
+
+
+        $etudiant = (new Etudiant())->getByUtilisateur(Session::get('id_utilisateur'));
+        if (!$etudiant) {
+            Session::flash('error', 'Profil étudiant introuvable.');
+            header('Location: ' . BASE_URL . '/etudiant/dashboard');
+            exit;
+        }
+
+        $inscription = (new Inscription())->getByEtudiant($etudiant['id_etudiant']);
+        if (!$inscription || !$inscription['peut_soumettre']) {
+            Session::flash('error', 'Vous ne pouvez pas soumettre de mémoire pour le moment.');
+            header('Location: ' . BASE_URL . '/etudiant/dashboard');
+            exit;
+        }
+
+        $errors = [];
+        $titre         = trim($_POST['titre'] ?? '');
+        $theme         = trim($_POST['theme'] ?? '');
+        $resume        = trim($_POST['resume'] ?? '');
+        $id_professeur = intval($_POST['id_professeur'] ?? 0);
+
+        if (empty($titre))         $errors[] = 'Le titre est obligatoire.';
+        if (empty($theme))         $errors[] = 'Le thème est obligatoire.';
+        if (empty($resume))        $errors[] = 'Le résumé est obligatoire.';
+        if ($id_professeur === 0)  $errors[] = 'Le professeur directeur est obligatoire.';
+
+        $fichier_pdf = '';
+        if (empty($_FILES['fichier_pdf']['name'])) {
+            $errors[] = 'Le fichier PDF est obligatoire.';
+        } else {
+            $file = $_FILES['fichier_pdf'];
+            $mime = mime_content_type($file['tmp_name']);
+            $size = $file['size'];
+            $ext  = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+
+            if ($mime !== ALLOWED_MIME || $ext !== 'pdf') {
+                $errors[] = 'Le fichier doit être un PDF.';
+            } elseif ($size > MAX_UPLOAD_SIZE) {
+                $errors[] = 'Le fichier ne doit pas dépasser 10 Mo.';
+            } else {
+                $fichier_pdf = uniqid('memoire_', true) . '.pdf';
+                $destination = STORAGE_PATH . $fichier_pdf;
+                if (!move_uploaded_file($file['tmp_name'], $destination)) {
+                    $errors[] = 'Erreur lors de l\'upload du fichier.';
+                    $fichier_pdf = '';
+                }
+            }
+        }
+
+        if (!(new Professeur())->getById($id_professeur)) {
+            $errors[] = 'Le professeur sélectionné est invalide.';
+        }
+
+        if (!(new Memoire())->hasPendingByInscription($inscription['id_inscription'])) {
+            // okay
+        }
+
+        if (!empty($errors)) {
+            $professeurs = (new Professeur())->getAll();
+            $inscription  = (new Inscription())->getByEtudiant($etudiant['id_etudiant']);
+            $old          = [
+                'titre'         => $titre,
+                'theme'         => $theme,
+                'resume'        => $resume,
+                'id_professeur' => $id_professeur,
+            ];
+            require_once ROOT_PATH . '/app/views/memoires/soumettre.php';
+            return;
+        }
+
+        if ((new Memoire())->hasPendingByInscription($inscription['id_inscription'])) {
+            Session::flash('error', 'Vous avez déjà un mémoire en attente.');
+            header('Location: ' . BASE_URL . '/etudiant/mon-memoire');
+            exit;
+        }
+
+        $memoireModel = new Memoire();
+        $memoireModel->soumettre([
+            'titre'          => $titre,
+            'theme'          => $theme,
+            'resume'         => $resume,
+            'fichier_pdf'    => $fichier_pdf,
+            'auteur_nom'     => $etudiant['nom'],
+            'auteur_prenom'  => $etudiant['prenom'],
+            'id_inscription' => $inscription['id_inscription'],
+            'id_professeur'  => $id_professeur,
+        ]);
+
+        Session::flash('success', 'Mémoire soumis avec succès. Il est maintenant en attente de validation.');
+        header('Location: ' . BASE_URL . '/etudiant/mon-memoire');
+        exit;
     }
 }
