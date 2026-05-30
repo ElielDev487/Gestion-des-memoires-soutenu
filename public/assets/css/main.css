@@ -1016,3 +1016,334 @@ tbody td {
 .form-group {
     position: relative;
 }
+/* ── Catalogue hero ──────────────────────────────────── */
+.catalogue-hero {
+    background: var(--navy);
+    margin: -24px -24px 24px -24px;
+    padding: 32px 24px;
+}
+
+.catalogue-hero h1 {
+    color: var(--white);
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.catalogue-hero p {
+    color: #94A8C8;
+    font-size: 13px;
+    margin-bottom: 20px;
+}
+
+.catalogue-search-bar {
+    display: flex;
+    align-items: center;
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 4px 4px 4px 14px;
+    gap: 10px;
+    max-width: 640px;
+}
+
+.catalogue-search-bar i {
+    color: var(--gray);
+    font-size: 14px;
+}
+
+.catalogue-search-bar input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 13px;
+    background: transparent;
+    color: var(--dark);
+}
+
+/* ── Filtres ─────────────────────────────────────────── */
+.catalogue-filters {
+    background: var(--white);
+    border: 1px solid var(--gray-lt);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 20px;
+}
+
+.filters-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.filters-row select {
+    padding: 7px 10px;
+    border: 1px solid var(--gray-lt);
+    border-radius: var(--radius);
+    font-size: 12px;
+    color: var(--dark);
+    background: var(--grayBg);
+    cursor: pointer;
+}
+
+.filters-row select:focus {
+    outline: none;
+    border-color: var(--blue);
+}
+
+/* ── Résultats ───────────────────────────────────────── */
+.results-count {
+    font-size: 13px;
+    color: var(--gray);
+    margin-bottom: 16px;
+}
+
+/* ── Page détail ─────────────────────────────────────── */
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--gray);
+    margin-bottom: 20px;
+}
+
+.breadcrumb a {
+    color: var(--blue);
+}
+
+.breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+.detail-layout {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 20px;
+    align-items: start;
+}
+
+.detail-header {
+    padding: 4px 0;
+}
+
+.detail-header h1 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--dark);
+    margin: 12px 0 8px;
+    line-height: 1.4;
+}
+
+.detail-author {
+    color: var(--gray);
+    font-size: 13px;
+}
+
+.detail-resume {
+    font-size: 13px;
+    color: var(--dark);
+    line-height: 1.7;
+}
+
+.detail-read-card .card-body {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.detail-read-body h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--dark);
+    margin-bottom: 4px;
+}
+
+.detail-read-body p {
+    font-size: 12px;
+    color: var(--gray);
+}
+
+/* ── Like ────────────────────────────────────────────── */
+.like-card .card-body {
+    padding: 16px;
+    text-align: center;
+}
+
+.like-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: var(--radius);
+    border: 2px solid var(--gray-lt);
+    background: var(--white);
+    color: var(--gray);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+    justify-content: center;
+}
+
+.like-btn:hover {
+    border-color: var(--red);
+    color: var(--red);
+}
+
+.like-btn.liked {
+    background: var(--red-bg);
+    border-color: var(--red);
+    color: var(--red);
+}
+
+/* ── Infos sidebar ───────────────────────────────────── */
+.info-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.info-label {
+    font-size: 11px;
+    color: var(--gray);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.info-value {
+    font-size: 13px;
+    color: var(--dark);
+    font-weight: 600;
+}
+
+/* ── Commentaires ────────────────────────────────────── */
+.comment-form {
+    margin-bottom: 24px;
+    border: 1px solid var(--gray-lt);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+.comment-form textarea {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    font-size: 13px;
+    font-family: inherit;
+    resize: none;
+    color: var(--dark);
+    background: var(--white);
+}
+
+.comment-form textarea:focus {
+    outline: none;
+}
+
+.comment-form-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: var(--bg);
+    border-top: 1px solid var(--gray-lt);
+}
+
+.char-count {
+    font-size: 11px;
+    color: var(--gray);
+}
+
+.comment-item {
+    display: flex;
+    gap: 12px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--gray-lt);
+}
+
+.comment-item:last-child {
+    border-bottom: none;
+}
+
+.comment-avatar {
+    width: 36px;
+    height: 36px;
+    background: var(--blue);
+    color: var(--white);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.comment-content {
+    flex: 1;
+}
+
+.comment-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+}
+
+.comment-meta strong {
+    font-size: 13px;
+    color: var(--dark);
+}
+
+.comment-date {
+    font-size: 11px;
+    color: var(--gray);
+    margin-left: auto;
+}
+
+.comment-content p {
+    font-size: 13px;
+    color: var(--dark);
+    line-height: 1.6;
+}
+
+.no-comments {
+    text-align: center;
+    color: var(--gray);
+    padding: 24px;
+    font-size: 13px;
+}
+
+/* ── Responsive détail ───────────────────────────────── */
+@media (max-width: 768px) {
+    .detail-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .detail-sidebar {
+        order: -1;
+    }
+
+    .catalogue-hero {
+        margin: -16px -16px 16px -16px;
+        padding: 24px 16px;
+    }
+
+    .filters-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .filters-row select {
+        width: 100%;
+    }
+}
