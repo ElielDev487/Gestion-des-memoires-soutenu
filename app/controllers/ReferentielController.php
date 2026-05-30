@@ -153,4 +153,20 @@ class ReferentielController {
         header('Location: ' . BASE_URL . '/de/referentiel');
         exit;
     }
+
+    public function supprimerAnnee(int $id): void {
+        Auth::requireRole('de');
+
+        $anneeAcademique = new AnneeAcademique();
+
+        if ($anneeAcademique->isUsed($id)) {
+            Session::flash('error', 'Impossible de supprimer cette année académique — elle est utilisée dans des inscriptions ou des mémoires.');
+        } else {
+            $anneeAcademique->delete($id);
+            Session::flash('success', 'Année académique supprimée avec succès.');
+        }
+
+        header('Location: ' . BASE_URL . '/de/referentiel');
+        exit;
+    }
 }
